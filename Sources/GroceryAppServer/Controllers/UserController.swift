@@ -20,6 +20,32 @@ final class UserController: RouteCollection, Sendable {
         api.post("register", use: register)
     }
     
+    func login(req: Request) async throws -> String {
+        
+        // decode the request
+        let user = try req.content.decode(User.self)
+        
+        // check if user exists in the database
+        guard let existingUser = try await User.query(on: req.db)
+            .filter(\.$username == user.username)
+            .first() else {
+            throw Abort(.badRequest)
+        }
+        
+        // validate the password
+        let rerult = try await req.password.async.verify(user.password, created: existingUser.password)
+        
+        if !rerult {
+            throw Abort(.unauthorized)
+        }
+        
+        //generate the token and return the user
+        
+        
+        return "OK"
+        
+    }
+    
     func register(req: Request) async throws -> RegisterResponseDTO {
         // validate the user // validations
         try User.validate(content: req)

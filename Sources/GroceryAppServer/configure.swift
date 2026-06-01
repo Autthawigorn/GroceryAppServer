@@ -15,8 +15,12 @@ public func configure(_ app: Application) async throws {
         )), as: .psql)
     }
 
+    // register migration
    app.migrations.add(CreateUserTableMigration())
    // try await app.autoMigrate()
+    
+    // register the controller
+    try app.register(collection: UserController())
 
     try routes(app)
 }

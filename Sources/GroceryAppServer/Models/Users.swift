@@ -18,7 +18,7 @@ final class User: Model, Content, Validatable, @unchecked Sendable {
     @Field(key: "username")
     var username: String
     
-    @Field(key: "passwprd")
+    @Field(key: "password")
     var password: String
     
     init() {}
