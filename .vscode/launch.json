@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GroceryAppServer}",
+            "name": "Debug GroceryAppServer",
+            "target": "GroceryAppServer",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug GroceryAppServer"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:GroceryAppServer}",
+            "name": "Release GroceryAppServer",
+            "target": "GroceryAppServer",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release GroceryAppServer"
+        }
+    ]
+}
