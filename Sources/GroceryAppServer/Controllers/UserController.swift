@@ -18,9 +18,12 @@ final class UserController: RouteCollection, Sendable {
         let api = routes.grouped("api")
         // /api/register
         api.post("register", use: register)
+        
+        // /api/login
+        api.post("login", use: login)
     }
     
-    func login(req: Request) async throws -> String {
+    func login(req: Request) async throws -> LoginResponseDTO {
         
         // decode the request
         let user = try req.content.decode(User.self)
@@ -40,9 +43,9 @@ final class UserController: RouteCollection, Sendable {
         }
         
         //generate the token and return the user
+        let authPlayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: existingUser.requireID())
+        return try await LoginResponseDTO(error: false, token: req.jwt.sign(authPlayload), userID: existingUser.requireID())
         
-        
-        return "OK"
         
     }
     

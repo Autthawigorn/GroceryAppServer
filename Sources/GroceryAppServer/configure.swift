@@ -1,6 +1,8 @@
 import Vapor
 import Fluent
 import FluentPostgresDriver
+import JWT
+import JWTKit
 
 public func configure(_ app: Application) async throws {
     if let databaseURL = Environment.get("DATABASE_URL") {
@@ -21,6 +23,8 @@ public func configure(_ app: Application) async throws {
     
     // register the controller
     try app.register(collection: UserController())
+    
+    await app.jwt.keys.add(hmac: "SECRET-KEY", digestAlgorithm: .sha256)
 
     try routes(app)
 }
