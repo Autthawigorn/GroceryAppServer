@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserController.swift
 //  GroceryAppServer
 //
 //  Created by Art Mac M5 on 1/6/2569 BE.
@@ -8,6 +8,7 @@
 import Foundation
 import Vapor
 import Fluent
+import GroceryAppSharedDTO
 
 // /api/register
 // /api/login
@@ -44,7 +45,7 @@ final class UserController: RouteCollection, Sendable {
         
         //generate the token and return the user
         let authPlayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: existingUser.requireID())
-        return try await LoginResponseDTO(error: false, token: req.jwt.sign(authPlayload), userID: existingUser.requireID())
+        return try await LoginResponseDTO(error: false, token: req.jwt.sign(authPlayload), userId: existingUser.requireID())
         
         
     }
