@@ -11,6 +11,6 @@ import Vapor
 struct LoginResponseDTO: Content {
     let error: Bool
     var reason: String? = nil
-    let token: String?
-    let userID : UUID
+    var token: String? = nil
+    var userID : UUID? = nil
 }
