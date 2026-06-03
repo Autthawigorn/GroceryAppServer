@@ -19,6 +19,7 @@ public func configure(_ app: Application) async throws {
 
     // register migration
    app.migrations.add(CreateUserTableMigration())
+    app.migrations.add(CreateGroceryCategoryTableMigration())
    // try await app.autoMigrate()
     
     // register the controller
