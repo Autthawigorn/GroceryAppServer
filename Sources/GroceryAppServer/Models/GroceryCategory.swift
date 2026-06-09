@@ -31,6 +31,7 @@ final class GroceryCategory: Model, Content, Validatable, @unchecked Sendable {
         self.title = title
         self.colorCode = colorCode
         self.$user.id = userID //$ หมายถึงการเข้าถึงตัวแปรที่เป็น ParentProperty โดยตรง
+        //ใน Swift ใช้ @ แปะไว้บนหัวตัวแปรเพื่อเพิ่มพลังให้มัน และใช้ $ เมื่อต้องการเข้าถึง "ตัวจัดการ" (Wrapper) ที่ซ่อนอยู่ข้างหลัง
     }
     
     static func validations(_ validations: inout Validations) {
