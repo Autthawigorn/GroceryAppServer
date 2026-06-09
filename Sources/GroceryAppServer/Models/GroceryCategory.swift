@@ -1,0 +1,40 @@
+//
+//  File.swift
+//  GroceryAppServer
+//
+//  Created by Art's Mac M1 on 6/9/26.
+//
+
+import Foundation
+import Vapor
+import Fluent
+
+final class GroceryCategory: Model, Content, Validatable, @unchecked Sendable {
+    static let schema = "grocery_categories"
+    
+    @ID(key: .id)
+    var id: UUID?
+    
+    @Field(key: "title")
+    var title: String
+    
+    @Field(key: "color_code")
+    var colorCode: String
+    
+    @Parent(key: "user_id")
+    var user: User
+    
+    init() {}
+    
+    init(id: UUID? = nil, title: String, colorCode: String, userID: UUID) {
+        self.id = id
+        self.title = title
+        self.colorCode = colorCode
+        self.$user.id = userID //$ หมายถึงการเข้าถึงตัวแปรที่เป็น ParentProperty โดยตรง
+    }
+    
+    static func validations(_ validations: inout Validations) {
+       //
+    }
+
+}
