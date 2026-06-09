@@ -16,7 +16,7 @@ struct CreateGroceryCategoryTableMigration: AsyncMigration {
             .id()
             .field("title", .string, .required)
             .field("color_code", .string, .required)
-            .field("user_id", .uuid, .required, .references("users", "id"))
+            .field("user_id", .uuid, .required, .references("users", "id")) //ผูก relationship กับ Users
             .create()
     }
     

@@ -18,14 +18,14 @@ public func configure(_ app: Application) async throws {
     }
 
     // register migration
-   app.migrations.add(CreateUserTableMigration())
+    app.migrations.add(CreateUserTableMigration())
     app.migrations.add(CreateGroceryCategoryTableMigration())
-   // try await app.autoMigrate()
+    // try await app.autoMigrate()
     
     // register the controller
     try app.register(collection: UserController())
     
     await app.jwt.keys.add(hmac: "SECRET-KEY", digestAlgorithm: .sha256)
-
+    
     try routes(app)
 }
