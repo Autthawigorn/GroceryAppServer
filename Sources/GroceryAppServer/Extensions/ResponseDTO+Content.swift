@@ -1,8 +1,6 @@
 //
-//  File.swift
+//  ResponseDTO+Content.swift
 //  GroceryAppServer
-//
-//  Created by Autthawigorn MBP on 3/6/2569 BE.
 //
 
 import Foundation
@@ -14,12 +12,12 @@ extension LoginResponseDTO: @retroactive Content, @unchecked @retroactive Sendab
 extension RegisterResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {}
 
 extension GroceryCategoryResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {
-    
+
     init?(_ groceryCategory: GroceryCategory) {
-        
+
         guard let id = groceryCategory.id else { return nil }
-        
+
         self.init(id: id, title: groceryCategory.title, colorCode: groceryCategory.colorCode)
-        
+
     }
 }

@@ -25,49 +25,54 @@ final class UserController: RouteCollection, Sendable {
     }
     
     func login(req: Request) async throws -> LoginResponseDTO {
-        
+
+        // validate the request body
+        try LoginRequestDTO.validate(content: req)
+
         // decode the request
-        let user = try req.content.decode(User.self)
-        
+        let loginRequestDTO = try req.content.decode(LoginRequestDTO.self)
+
         // check if user exists in the database
         guard let existingUser = try await User.query(on: req.db)
-            .filter(\.$username == user.username)
+            .filter(\.$username == loginRequestDTO.username)
             .first() else {
                   return LoginResponseDTO(error: true, reason: "Username is not found")
         }
-        
+
         // validate the password
-        let rerult = try await req.password.async.verify(user.password, created: existingUser.password)
-        
-        if !rerult {
+        let result = try await req.password.async.verify(loginRequestDTO.password, created: existingUser.password)
+
+        if !result {
             return LoginResponseDTO(error: true, reason: "Password is incorrect")
         }
-        
+
         //generate the token and return the user
         let authPlayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: existingUser.requireID())
         return try await LoginResponseDTO(error: false, token: req.jwt.sign(authPlayload), userId: existingUser.requireID())
-        
-        
+
+
     }
-    
+
     func register(req: Request) async throws -> RegisterResponseDTO {
-        // validate the user // validations
-        try User.validate(content: req)
-        
-        let user = try req.content.decode(User.self)
-        
+        // validate the request body
+        try RegisterRequestDTO.validate(content: req)
+
+        let registerRequestDTO = try req.content.decode(RegisterRequestDTO.self)
+
         // find if the user already exists using the user name
         if let _ = try await User.query(on: req.db)
-            .filter(\.$username == user.username)
+            .filter(\.$username == registerRequestDTO.username)
             .first() {
             throw Abort(.badRequest, reason: "User already exists")
         }
-        
+
         // hash the password
-        user.password = try await req.password.async.hash(user.password)
+        let hashedPassword = try await req.password.async.hash(registerRequestDTO.password)
+
         // save the user to data base
+        let user = User(username: registerRequestDTO.username, password: hashedPassword)
         try await user.save(on: req.db)
-        
+
         return RegisterResponseDTO(error: false)
     }
 

@@ -9,7 +9,7 @@ import Foundation
 import Vapor
 import Fluent
 
-final class GroceryCategory: Model, Content, Validatable, @unchecked Sendable {
+final class GroceryCategory: Model, @unchecked Sendable {
     static let schema = "grocery_categories"
     
     @ID(key: .id)
@@ -33,10 +33,4 @@ final class GroceryCategory: Model, Content, Validatable, @unchecked Sendable {
         self.$user.id = userId //$ หมายถึงการเข้าถึงตัวแปรที่เป็น ParentProperty โดยตรง
         //ใน Swift ใช้ @ แปะไว้บนหัวตัวแปรเพื่อเพิ่มพลังให้มัน และใช้ $ เมื่อต้องการเข้าถึง "ตัวจัดการ" (Wrapper) ที่ซ่อนอยู่ข้างหลัง
     }
-    
-    static func validations(_ validations: inout Validations) {
-        validations.add("title", as: String.self, is: !.empty, customFailureDescription: "Title cannot be empty")
-        validations.add("colorCode", as: String.self, is: !.empty, customFailureDescription: "Color Code cannot be empty")
-    }
-
 }

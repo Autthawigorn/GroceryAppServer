@@ -24,6 +24,7 @@ public func configure(_ app: Application) async throws {
     
     // register the controller
     try app.register(collection: UserController())
+    try app.register(collection: GroceryController())
     
     await app.jwt.keys.add(hmac: "SECRET-KEY", digestAlgorithm: .sha256)
     
