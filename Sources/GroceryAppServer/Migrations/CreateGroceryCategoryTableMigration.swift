@@ -8,7 +8,6 @@
 import Foundation
 import Fluent
 
-
 struct CreateGroceryCategoryTableMigration: AsyncMigration {
     
     func prepare(on database: any Database) async throws {

@@ -1,12 +1,11 @@
 //
-//  File.swift
+//  GroceryCategory.swift
 //  GroceryAppServer
 //
 //  Created by Art's Mac M1 on 6/9/26.
 //
 
 import Foundation
-import Vapor
 import Fluent
 
 final class GroceryCategory: Model, @unchecked Sendable {
