@@ -17,16 +17,19 @@ final class GroceryController: RouteCollection, Sendable {
         // /api/users/:userId
         let api = routes.grouped("api", "users", ":userId")
         
-        // POST: Saving GroceryCategory
-        // /api/users/:userId/grocery-categories
-        api.post("grocery-categories", use: saveGroceryCategory)
         
         // GET: /api/users/:userId/grocery-categories
         api.get("grocery-categories", use: getGroceryCategoriesByUser)
+        
+        // POST: Saving GroceryCategory
+        // /api/users/:userId/grocery-categories
+        api.post("grocery-categories", use: saveGroceryCategory)
+
+        // DELETE: /api/users/:userId/grocery-categories/:groceryCategoryId
     }
     
     func getGroceryCategoriesByUser(req: Request) async throws -> [GroceryCategoryResponseDTO] {
-        // 1. get the userId from the path
+        // 1. get the userId from the url path
         guard let userId = req.parameters.get("userId", as: UUID.self) else {
             throw Abort(.badRequest)
         }
@@ -40,7 +43,7 @@ final class GroceryController: RouteCollection, Sendable {
 
     func saveGroceryCategory(req: Request) async throws -> GroceryCategoryResponseDTO {
         
-        // 1. get the userId from the path
+        // 1. get the userId from the url path
         guard let userId = req.parameters.get("userId", as: UUID.self) else {
             throw Abort(.badRequest)
         }
