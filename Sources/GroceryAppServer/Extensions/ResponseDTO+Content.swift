@@ -11,6 +11,10 @@ extension LoginResponseDTO: @retroactive Content, @unchecked @retroactive Sendab
 
 extension RegisterResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {}
 
+extension GroceryCategoryRequestDTO: @retroactive Content, @unchecked @retroactive Sendable {
+    
+}
+
 extension GroceryCategoryResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {
 
     init?(_ groceryCategory: GroceryCategory) {
