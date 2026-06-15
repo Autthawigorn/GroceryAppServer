@@ -153,7 +153,7 @@ final class GroceryController: RouteCollection, Sendable {
 //            throw Abort(.internalServerError)
 //        }
         
-        // 9. map GroceryItem model to DTO (failable เพราะ groceryItem.id อาจเป็น nil
+        // 9. unwrap groceryItemResponseDTO และ map to DTO for the response
         guard let groceryItemResponseDTO = GroceryItemResponseDTO(groceryItem) else {
             throw Abort(.internalServerError)
         }
