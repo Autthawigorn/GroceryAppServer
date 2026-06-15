@@ -29,6 +29,10 @@ final class GroceryController: RouteCollection, Sendable {
 
         // DELETE: /api/grocery-categories/:groceryCategoryId
         api.delete("grocery-categories", ":groceryCategoryId", use: deleteGroceryCategory)
+        
+        // POST: /api/grocery-categories/:groceryCategoryId/grocery-items
+        api.post("grocery-categories", ":groceryCategoryId", "grocery-items", use: saveGroceryItem)
+        
     }
 
     func saveGroceryCategory(req: Request) async throws -> GroceryCategoryResponseDTO {
@@ -99,6 +103,37 @@ final class GroceryController: RouteCollection, Sendable {
         }
         
         return groceryCategoryResponseDTO
+        
+    }
+    
+    func saveGroceryItem(req: Request) async throws -> GroceryItemResponseDTO {
+        // รับ userId จาก Token
+        let userId = try req.auth.require(AuthPayload.self).userID
+        
+        guard let groceryCategoryId = req.parameters.get("groceryCategoryId", as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        // find the grocery category and ensure it belongs to the user
+        guard let groceryCategory = try await GroceryCategory.query(on: req.db)
+            .filter(\.$user.$id == userId)
+            .filter(\.$id == groceryCategoryId)
+            .first() else {
+            throw Abort(.notFound, reason: "Grocery category not found for this user.")
+        }
+        
+        // decoding // GroceryItemRequestDTO
+        let groceryItemRequestDTO = try req.content.decode(GroceryItemRequestDTO.self)
+        
+        let groceryItem = GroceryItem(title: groceryItemRequestDTO.title, price: groceryItemRequestDTO.price, quantity: groceryItemRequestDTO.quantity, groceryCategoryId: groceryCategory.id!)
+        
+        try await groceryItem.save(on: req.db)
+        
+        guard let groceryItemResponseDTO = GroceryItemResponseDTO(groceryItem) else {
+            throw Abort(.internalServerError)
+        }
+        
+        return groceryItemResponseDTO
         
     }
 }
