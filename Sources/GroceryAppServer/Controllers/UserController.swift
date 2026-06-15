@@ -51,7 +51,11 @@ final class UserController: RouteCollection, Sendable {
 
         // 5. generate the token and return the response
         let authPlayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: existingUser.requireID())
-        return try await LoginResponseDTO(error: false, token: req.jwt.sign(authPlayload), userId: existingUser.requireID())
+        
+        return try await LoginResponseDTO(
+            error: false,
+            token: req.jwt.sign(authPlayload),
+            userId: existingUser.requireID())
     }
 
     func register(req: Request) async throws -> RegisterResponseDTO {
@@ -78,7 +82,11 @@ final class UserController: RouteCollection, Sendable {
 
         // 6. generate the token, so the client can be logged in right after register
         let authPayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: user.requireID())
-        return try await RegisterResponseDTO(error: false, token: req.jwt.sign(authPayload), userId: user.requireID())
+        
+        return try await RegisterResponseDTO(
+            error: false,
+            token: req.jwt.sign(authPayload),
+            userId: user.requireID())
     }
 
     

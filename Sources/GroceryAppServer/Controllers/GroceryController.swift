@@ -52,10 +52,13 @@ final class GroceryController: RouteCollection, Sendable {
             throw Abort(.notFound, reason: "User not found")
         }
      
+        // 5. สร้าง GroceryCategory model
+        let groceryCategory = GroceryCategory(
+            title: groceryCategoryRequestDTO.title,
+            colorCode: groceryCategoryRequestDTO.colorCode,
+            userId: userId)
 
-        let groceryCategory = GroceryCategory(title: groceryCategoryRequestDTO.title, colorCode: groceryCategoryRequestDTO.colorCode, userId: userId)
-
-        // 5. save the grocery category to the database
+        // 6. save the grocery category to the database
         try await groceryCategory.save(on: req.db)
 
         guard let groceryCategoryResponseDTO = GroceryCategoryResponseDTO(groceryCategory) else {
@@ -107,14 +110,21 @@ final class GroceryController: RouteCollection, Sendable {
     }
     
     func saveGroceryItem(req: Request) async throws -> GroceryItemResponseDTO {
-        // รับ userId จาก Token
+        // 1. รับ userId จาก Token
         let userId = try req.auth.require(AuthPayload.self).userID
         
+        // 2. รับ groceryCategoryId จาก path parameter
         guard let groceryCategoryId = req.parameters.get("groceryCategoryId", as: UUID.self) else {
             throw Abort(.badRequest)
         }
         
-        // find the grocery category and ensure it belongs to the user
+        // 3. validate the request body
+        try GroceryItemRequestDTO.validate(content: req)
+        
+        // 4. decode the request body
+        let groceryItemRequestDTO = try req.content.decode(GroceryItemRequestDTO.self)
+        
+        // 5. query DB: find the grocery category and ensure it belongs to the user
         guard let groceryCategory = try await GroceryCategory.query(on: req.db)
             .filter(\.$user.$id == userId)
             .filter(\.$id == groceryCategoryId)
@@ -122,18 +132,38 @@ final class GroceryController: RouteCollection, Sendable {
             throw Abort(.notFound, reason: "Grocery category not found for this user.")
         }
         
-        // decoding // GroceryItemRequestDTO
-        let groceryItemRequestDTO = try req.content.decode(GroceryItemRequestDTO.self)
+        // 6. unwrap groceryCategory.id (Fluent model id เป็น Optional)
+        guard let categoryId = groceryCategory.id else {
+            throw Abort(.internalServerError)
+        }
         
-        let groceryItem = GroceryItem(title: groceryItemRequestDTO.title, price: groceryItemRequestDTO.price, quantity: groceryItemRequestDTO.quantity, groceryCategoryId: groceryCategory.id!)
+        // 7. สร้าง GroceryItem model
+        let groceryItem = GroceryItem(
+            title: groceryItemRequestDTO.title,
+            price: groceryItemRequestDTO.price,
+            quantity: groceryItemRequestDTO.quantity,
+            groceryCategoryId: categoryId
+        )
         
+        // 8. save to database
         try await groceryItem.save(on: req.db)
         
+        // 9. unwrap groceryItem.id และ map to DTO for the response
+//        guard let itemId = groceryItem.id else {
+//            throw Abort(.internalServerError)
+//        }
+        
+        // 9. unwrap groceryItemResponseDTO และ map to DTO for the response
         guard let groceryItemResponseDTO = GroceryItemResponseDTO(groceryItem) else {
             throw Abort(.internalServerError)
         }
         
         return groceryItemResponseDTO
-        
+//        GroceryItemResponseDTO(
+//            id: itemId,
+//            title: groceryItem.title,
+//            price: groceryItem.price,
+//            quantity: groceryItem.quantity
+//        )
     }
 }

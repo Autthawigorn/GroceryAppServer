@@ -9,6 +9,7 @@ import Foundation
 import Fluent
 
 final class GroceryCategory: Model, @unchecked Sendable {
+    
     static let schema = "grocery_categories"
     
     @ID(key: .id)

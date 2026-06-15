@@ -14,14 +14,32 @@ extension RegisterResponseDTO: @retroactive Content, @unchecked @retroactive Sen
 extension GroceryCategoryRequestDTO: @retroactive Content, @unchecked @retroactive Sendable {}
 
 extension GroceryCategoryResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {
-
+    // convenience failable init รับ GroceryCategory model โดยตรง
+    // return Optional เพราะ groceryCategory.id อาจเป็น nil
+    // init? คือ failable initializer
     init?(_ groceryCategory: GroceryCategory) {
 
-        guard let id = groceryCategory.id else { return nil }
+        guard let groceryCategoryId = groceryCategory.id else { return nil } // ถ้าเงื่อนไขไม่ผ่าน return nil ได้
 
-        self.init(id: id, title: groceryCategory.title, colorCode: groceryCategory.colorCode)
+        self.init(
+            id: groceryCategoryId,
+            title: groceryCategory.title,
+            colorCode: groceryCategory.colorCode)
 
     }
 }
 
-extension GroceryItemResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {}
+extension GroceryItemResponseDTO: @retroactive Content, @unchecked @retroactive Sendable {
+    // convenience failable init รับ GroceryItem model โดยตรง
+    // init? คือ failable initializer
+    init?(_ groceryItem: GroceryItem) {
+        
+        guard let groceryItemId = groceryItem.id else { return nil }
+        
+        self.init(
+            id: groceryItemId,
+            title: groceryItem.title,
+            price: groceryItem.price,
+            quantity: groceryItem.quantity)
+    }
+}
