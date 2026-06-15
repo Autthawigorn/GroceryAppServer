@@ -17,6 +17,8 @@ extension GroceryCategoryResponseDTO: @retroactive Content, @unchecked @retroact
     // convenience failable init รับ GroceryCategory model โดยตรง
     // return Optional เพราะ groceryCategory.id อาจเป็น nil
     // init? คือ failable initializer
+    // Fluent Model — id เป็น Optional เพราะยังไม่ได้ save ลง DB @ID(key: .id) var id: UUID?
+    
     init?(_ groceryCategory: GroceryCategory) {
 
         guard let groceryCategoryId = groceryCategory.id else { return nil } // ถ้าเงื่อนไขไม่ผ่าน return nil ได้
