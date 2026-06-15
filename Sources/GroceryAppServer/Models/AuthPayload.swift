@@ -6,7 +6,11 @@
 //
 
 import Foundation
+import Vapor
 import JWTKit
+
+// Authenticatable: ทำให้ใช้กับ req.auth.get / guardMiddleware ได้
+extension AuthPayload: Authenticatable {}
 
 struct AuthPayload: JWTPayload {
     
