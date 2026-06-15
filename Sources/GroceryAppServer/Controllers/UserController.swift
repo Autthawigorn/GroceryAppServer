@@ -76,7 +76,9 @@ final class UserController: RouteCollection, Sendable {
         let user = User(username: registerRequestDTO.username, password: hashedPassword)
         try await user.save(on: req.db)
 
-        return RegisterResponseDTO(error: false)
+        // 6. generate the token, so the client can be logged in right after register
+        let authPayload = try AuthPayload(subject: .init(value: "Grocery App"), expiration: .init(value: .distantFuture), userID: user.requireID())
+        return try await RegisterResponseDTO(error: false, token: req.jwt.sign(authPayload), userId: user.requireID())
     }
 
     
