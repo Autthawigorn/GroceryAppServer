@@ -2,7 +2,7 @@ import Vapor
 
 func routes(_ app: Application) throws {
     app.get { req async in
-        "Local server works!"
+        "Server Works!"
     }
 
     app.get("hello") { req async -> String in
