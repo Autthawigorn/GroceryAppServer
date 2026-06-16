@@ -2,10 +2,13 @@ import Vapor
 
 func routes(_ app: Application) throws {
     app.get { req async in
-        "It works!"
+        "Local server works!"
     }
 
     app.get("hello") { req async -> String in
-        "Hello, world!"
+        "Hello, Vapor!"
     }
+    
+    try app.register(collection: UserController())
+    try app.register(collection: GroceryController())
 }

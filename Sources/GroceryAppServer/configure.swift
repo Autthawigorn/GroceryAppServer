@@ -23,11 +23,13 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateGroceryItemTableMigration())
     // try await app.autoMigrate()
     
-    // register the controller
-    try app.register(collection: UserController())
-    try app.register(collection: GroceryController())
-    
-    await app.jwt.keys.add(hmac: "SECRET-KEY", digestAlgorithm: .sha256)
-    
+    // Environment.get("JWT_SECRET") อ่านค่าจาก environment variable ของ server
+    // - Local dev: ยังไม่ได้ตั้ง → ใช้ค่า fallback ?? ไปก่อน
+    // - Production (Railway / Heroku / Docker): ต้องไปตั้ง JWT_SECRET ใน dashboard ของ platform นั้น
+    //   แล้ว Environment.get() จะดึงค่านั้นมาใช้แทน fallback อัตโนมัติ
+    //   ค่า secret ควรเป็น random string ยาวๆ เช่น UUID หรือ openssl rand -hex 32
+    let jwtSecret = Environment.get("JWT_SECRET") ?? "local-dev-secret-change-in-production"
+    await app.jwt.keys.add(hmac: HMACKey(stringLiteral: jwtSecret), digestAlgorithm: .sha256)
+
     try routes(app)
 }
