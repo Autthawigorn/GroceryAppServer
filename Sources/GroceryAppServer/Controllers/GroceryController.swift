@@ -68,7 +68,7 @@ final class GroceryController: RouteCollection, Sendable {
         return groceryCategoryResponseDTO
     }
 
-    /// === GET === 
+    /// === GET ===
     func getGroceryCategoriesByUser(req: Request) async throws -> [GroceryCategoryResponseDTO] {
 
         // AUTH: ดึง userId จาก JWT token (ป้องกัน user ปลอมตัวเป็นคนอื่น)
