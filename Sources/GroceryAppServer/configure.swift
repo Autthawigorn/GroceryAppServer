@@ -21,7 +21,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateUserTableMigration())
     app.migrations.add(CreateGroceryCategoryTableMigration())
     app.migrations.add(CreateGroceryItemTableMigration())
-    // try await app.autoMigrate()
+    try await app.autoMigrate()
     
     // Environment.get("JWT_SECRET") อ่านค่าจาก environment variable ของ server
     // - Local dev: ยังไม่ได้ตั้ง → ใช้ค่า fallback ?? ไปก่อน
