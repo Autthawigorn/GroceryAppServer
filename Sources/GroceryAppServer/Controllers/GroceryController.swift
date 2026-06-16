@@ -212,8 +212,11 @@ final class GroceryController: RouteCollection, Sendable {
             throw Abort(.notFound)
         }
 
-        // DB.READ: ค้นหา item จาก Primary Key
-        guard let groceryItem = try await GroceryItem.find(groceryItemId, on: req.db) else {
+        // DB.READ: ค้นหา item โดย filter ทั้ง itemId และ categoryId ป้องกัน user อื่นลบ item ที่ไม่ใช่ของตัวเอง
+        guard let groceryItem = try await GroceryItem.query(on: req.db)
+            .filter(\.$id == groceryItemId)
+            .filter(\.$groceryCategory.$id == groceryCategoryId)
+            .first() else {
             throw Abort(.notFound)
         }
 
