@@ -23,20 +23,20 @@ final class UserController: RouteCollection, Sendable {
 
     func login(req: Request) async throws -> LoginResponseDTO {
 
-        // 1. ตรวจสอบ format ของ JSON body ที่ส่งมา
+        // REQ-01: ตรวจสอบ format ของ JSON body ที่ส่งมา
         try LoginRequestDTO.validate(content: req)
 
-        // 2. แปลง JSON body → LoginRequestDTO
+        // REQ-02: แปลง JSON body → LoginRequestDTO
         let loginRequestDTO = try req.content.decode(LoginRequestDTO.self)
 
-        // 3.1. ค้นหา user จาก username ใน DB
+        // DB.READ: ค้นหา user จาก username ใน DB
         guard let existingUser = try await User.query(on: req.db)
             .filter(\.$username == loginRequestDTO.username)
             .first() else {
             throw Abort(.unauthorized, reason: "Username or password is incorrect")
         }
 
-        // 3.2. เปรียบเทียบ password ที่พิมพ์มากับ hash ที่เก็บไว้ใน DB
+        // AUTH: เปรียบเทียบ password ที่พิมพ์มากับ hash ที่เก็บไว้ใน DB
         let result = try await req.password.async.verify(
             loginRequestDTO.password,      // password ที่ user พิมพ์ (plain text)
             created: existingUser.password // password ที่เก็บใน DB (hashed)
@@ -45,14 +45,14 @@ final class UserController: RouteCollection, Sendable {
             throw Abort(.unauthorized, reason: "Username or password is incorrect")
         }
 
-        // 4. สร้าง JWT payload (ข้อมูลที่จะฝังอยู่ใน token เช่น userId และวันหมดอายุ)
+        // CONSTRUCT: สร้าง JWT payload (ข้อมูลที่จะฝังอยู่ใน token เช่น userId และวันหมดอายุ)
         let authPayload = try AuthPayload(
             subject: .init(value: "Grocery App"),
             expiration: .init(value: Date().addingTimeInterval(60 * 60 * 24 * 30)), // 30 วัน
             userID: existingUser.requireID()
         )
 
-        // 5. Sign token แล้ว return response
+        // RES: Sign token แล้ว return response
         return try await LoginResponseDTO(
             error: false,
             token: req.jwt.sign(authPayload),
@@ -62,34 +62,39 @@ final class UserController: RouteCollection, Sendable {
 
     func register(req: Request) async throws -> RegisterResponseDTO {
 
-        // 1. ตรวจสอบ format ของ JSON body ที่ส่งมา
+        // REQ-01: ตรวจสอบ format ของ JSON body ที่ส่งมา
         try RegisterRequestDTO.validate(content: req)
 
-        // 2. แปลง JSON body → RegisterRequestDTO
+        // REQ-02: แปลง JSON body → RegisterRequestDTO
         let registerRequestDTO = try req.content.decode(RegisterRequestDTO.self)
 
-        // 3.1. ตรวจสอบว่า username ซ้ำกับในระบบมั้ย
+        // DB.READ: ตรวจสอบว่า username ซ้ำกับในระบบมั้ย
         if let _ = try await User.query(on: req.db)
             .filter(\.$username == registerRequestDTO.username)
             .first() {
             throw Abort(.badRequest, reason: "User already exists")
         }
 
-        // 3.2. Hash password ก่อนเก็บลง DB (ห้ามเก็บ plain text เด็ดขาด)
+        // CONSTRUCT-01: Hash password ก่อนเก็บลง DB (ห้ามเก็บ plain text เด็ดขาด)
         let hashedPassword = try await req.password.async.hash(registerRequestDTO.password)
 
-        // 4.1. สร้าง User model -> Save ลง DB
-        let user = User(username: registerRequestDTO.username, password: hashedPassword)
+        // CONSTRUCT-02: สร้าง User model
+        let user = User(
+            username: registerRequestDTO.username,
+            password: hashedPassword
+        )
+
+        // DB.WRITE: บันทึกลง DB
         try await user.save(on: req.db)
 
-        // 4.2. สร้าง JWT payload เพื่อให้ login ได้ทันทีหลัง register
+        // CONSTRUCT-03: สร้าง JWT payload เพื่อให้ login ได้ทันทีหลัง register
         let authPayload = try AuthPayload(
             subject: .init(value: "Grocery App"),
             expiration: .init(value: Date().addingTimeInterval(60 * 60 * 24 * 30)), // 30 วัน
             userID: user.requireID()
         )
 
-        // 5. Sign token แล้ว return response
+        // RES: Sign token แล้ว return response
         return try await RegisterResponseDTO(
             error: false,
             token: req.jwt.sign(authPayload),
